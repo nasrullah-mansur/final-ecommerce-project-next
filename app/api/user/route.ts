@@ -1,10 +1,11 @@
-import { connectDB } from "@/lib/db";
-import { User } from "@/models/user.model";
+
+import { dbConnect } from "@/db/mongodb";
+import User from "@/models/user.model";
 import hashPass from "@/utils/hashPass";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-    await connectDB();
+    await dbConnect();
 
     console.log("connected to db");
 
@@ -19,14 +20,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-    await connectDB();
+    await dbConnect();
     const reqData = await req.json();
 
     const user = await User.insertOne({
         name: reqData.name,
         email: reqData.email,
         password: await hashPass(reqData.password),
-        role: reqData.role,
     })
 
     return NextResponse.json({
