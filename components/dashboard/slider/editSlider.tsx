@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import apiUrl from "@/lib/apiUrl"
 import { useRouter } from "next/navigation"
 
+
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
@@ -28,20 +30,21 @@ const formSchema = z.object({
     image: z
         .instanceof(File, { message: "Image field is required" })
         .refine((file) => file.size <= MAX_FILE_SIZE, "Max file size is 5MB")
-        .refine((file) => ACCEPTED_TYPES.includes(file.type), "Unsupported file type"),
+        .refine((file) => ACCEPTED_TYPES.includes(file.type), "Unsupported file type")
+        .optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function AddSlider() {
+export default function EditSlider({ slider }: { slider: any }) {
     const [submitting, setSubmitting] = useState(false)
     const [serverError, setServerError] = useState<string | null>(null)
-    const router = useRouter();
+    const router = useRouter()
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            title: "",
+            title: slider.title,
         } as unknown as FormValues,
         mode: "onSubmit",
     })
@@ -66,11 +69,17 @@ export default function AddSlider() {
 
         try {
             const formData = new FormData()
+
+
             formData.append("title", values.title)
-            formData.append("image", values.image)
+            formData.append("id", slider._id)
+
+            if (values.image instanceof File) {
+                formData.append("image", values.image)
+            }
 
             const res = await fetch(apiUrl("/slider"), {
-                method: "POST",
+                method: "PATCH",
                 body: formData,
             })
 
@@ -82,7 +91,11 @@ export default function AddSlider() {
                     data?.error ||
                     `Request failed with status ${res.status}`
                 setServerError(msg)
+
+
+
             }
+
             form.reset()
 
             console.log("Created slider:", data)
@@ -131,7 +144,7 @@ export default function AddSlider() {
                     <div className="flex items-center gap-3">
                         <div className="relative h-20 w-20 overflow-hidden rounded-md border">
                             <Image
-                                src={previewUrl ?? "https://placehold.co/600x400.png"}
+                                src={previewUrl ?? slider.image}
                                 fill
                                 alt="Preview"
                                 className="object-cover"

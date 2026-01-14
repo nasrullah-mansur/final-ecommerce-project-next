@@ -33,90 +33,73 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { IRole } from "@/type/type";
+import apiUrl from "@/lib/apiUrl";
+import Image from "next/image";
+import Link from "next/link";
 
 
 export type Payment = {
     _id: string;
-    name: string;
-    email: string;
-    role: IRole;
+    title: string;
+    image: string;
 }
 
-const handleDelete = (id: string) => {
-    console.log(id);
+const handleDelete = async (id: string) => {
+
+    if (!id) return;
+
+    const confi = confirm("Are you sure you want to remove it?");
+
+    if (confi) {
+        const res = await fetch(apiUrl('/slider'), {
+            method: "DELETE",
+            body: JSON.stringify({ id })
+        })
+
+        const json = await res.json();
+
+        if (json.ok) {
+
+        }
+    }
+
+
 
 }
 
 export const columns: ColumnDef<Payment>[] = [
-
     {
-        accessorKey: "name",
+        accessorKey: "image",
+        header: () => "Image",
+        cell: ({ row }) => <div className="lowercase">
+            <Image
+                src={row.getValue("image")}
+                alt="preview image"
+                width={100}
+                height={100}
+            />
+        </div>,
+    },
+    {
+        accessorKey: "title",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Name
+                    Title
+
                     <ArrowUpDown />
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+        cell: ({ row }) => <div className="lowercase">
+            {row.getValue("title")}
+
+        </div>,
     },
 
-    {
-        accessorKey: "email",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Email
-                    <ArrowUpDown />
-                </Button>
-            )
-        },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-    },
-    {
-        accessorKey: "role",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Role
-                    <ArrowUpDown />
-                </Button>
-            )
-        },
-        cell: ({ row }) => {
-
-            if (row.getValue("role") == "Super Admin") {
-                return <div className="capitalize px-3">
-                    <span className="inline-block p-1 bg-green-600 text-white">{row.getValue("role")}</span>
-                </div>
-            }
-
-            else if (row.getValue("role") == "Admin") {
-                return <div className="capitalize px-3">
-                    <span className="inline-block p-1 bg-red-600 text-white">{row.getValue("role")}</span>
-                </div>
-            }
-
-            else {
-                return <div className="capitalize px-3">
-                    <span className="inline-block p-1 bg-amber-600 text-white">{row.getValue("role")}</span>
-                </div>
-            }
-
-
-        },
-    },
     {
         accessorKey: "createdAt",
         header: () => "Created At",
@@ -133,8 +116,10 @@ export const columns: ColumnDef<Payment>[] = [
 
             return (
                 <div className="flex gap-x-2">
-                    <Button size={"icon"}>
-                        <SquarePen />
+                    <Button asChild size={"icon"}>
+                        <Link href={`/dashboard/slider/edit/${row.original._id}`}>
+                            <SquarePen />
+                        </Link>
                     </Button>
                     <Button onClick={() => handleDelete(row.original._id)} variant={"destructive"} size={"icon"}>
                         <Trash />
@@ -145,7 +130,11 @@ export const columns: ColumnDef<Payment>[] = [
     },
 ]
 
-export function UserTable({ data }: { data: Payment[] }) {
+export function SliderTable({ data }: { data: Payment[] }) {
+
+    console.log(data);
+
+
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
@@ -172,12 +161,10 @@ export function UserTable({ data }: { data: Payment[] }) {
             rowSelection,
         },
         globalFilterFn: (row, columnId, filterValue) => {
-            const name = row.original.name?.toLowerCase() ?? ""
-            const email = row.original.email?.toLowerCase() ?? ""
+            const title = row.original.title?.toLowerCase() ?? ""
 
             return (
-                name.includes(filterValue.toLowerCase()) ||
-                email.includes(filterValue.toLowerCase())
+                title.includes(filterValue.toLowerCase())
             )
         },
     })
@@ -187,7 +174,7 @@ export function UserTable({ data }: { data: Payment[] }) {
             <div className="flex items-center py-4">
 
                 <Input
-                    placeholder="Filter name or email..."
+                    placeholder="Search by title"
                     value={(table.getState().globalFilter as string) ?? ""}
                     onChange={(event) => table.setGlobalFilter(event.target.value)}
                     className="max-w-sm"

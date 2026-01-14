@@ -5,6 +5,23 @@ import { uploadToCloudinary } from "@/lib/cloudinary";
 import { Slider } from "@/models/slider.model";
 import { NextResponse } from "next/server";
 
+export async function GET() {
+    try {
+        await dbConnect();
+
+        const data = await Slider.find();
+
+        return NextResponse.json({
+            ok: true,
+            data,
+        }, { status: 200 });
+
+    } catch (error) {
+        return NextResponse.json({
+            error: "Server error"
+        }, { status: 401 });
+    }
+}
 
 export async function POST(req: Request) {
     try {
@@ -36,6 +53,105 @@ export async function POST(req: Request) {
     } catch (error) {
         return NextResponse.json({
             error: "Server error"
+        }, { status: 401 });
+    }
+}
+
+export async function PUT(req: Request) {
+
+    try {
+
+        const { id } = await req.json();
+
+        if (!id) {
+            return NextResponse.json({
+                error: "No id found"
+            }, {
+                status: 401
+            })
+        }
+
+        await dbConnect();
+
+        const data = await Slider.findOne({ _id: Object(id) });
+
+        return NextResponse.json({
+            ok: true,
+            data,
+        }, { status: 200 });
+
+    } catch (error) {
+        return NextResponse.json({
+            error: "Server error"
+        }, { status: 401 });
+    }
+}
+
+export async function PATCH(req: Request) {
+    try {
+
+        const formData = await req.formData();
+        const file = formData.get("image") as File;
+        const title = formData.get("title")
+        const id = formData.get("id");
+
+        console.log(id);
+
+
+        if (!title || !id) {
+            return NextResponse.json({
+                error: "Validation error"
+            }, { status: 401 });
+        }
+
+        await dbConnect();
+
+        if (file) {
+            console.log("test");
+
+            const result = await uploadToCloudinary(file);
+
+            await Slider.findByIdAndUpdate(id, {
+                title,
+                image: result.url,
+            });
+        } else {
+            await Slider.findByIdAndUpdate(id, {
+                title,
+            });
+        }
+
+        return NextResponse.json({
+            ok: true,
+            message: "Slider added successfully"
+        }, { status: 201 });
+
+    } catch (error) {
+
+        return NextResponse.json({
+            error: "Server error",
+        }, { status: 401 });
+    }
+}
+
+export async function DELETE(req: Request) {
+    try {
+
+        const { id } = await req.json();
+
+        await dbConnect();
+
+        await Slider.findByIdAndDelete(id);
+
+        return NextResponse.json({
+            ok: true,
+            message: "Slider added successfully"
+        }, { status: 201 });
+
+    } catch (error) {
+
+        return NextResponse.json({
+            error: "Server error",
         }, { status: 401 });
     }
 }
