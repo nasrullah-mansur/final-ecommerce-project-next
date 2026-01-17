@@ -1,23 +1,23 @@
-import { SliderTable } from "@/components/dashboard/slider/sliderTable";
+import { ServiceTable } from "@/components/dashboard/service/serviceTable";
 import { Button } from "@/components/ui/button";
 import apiUrl from "@/lib/apiUrl";
 import Link from "next/link";
 
-export default async function Slider() {
+export default async function Service() {
 
-    const res = await fetch(apiUrl("/slider"));
+    const res = await fetch(apiUrl("/service"));
     const json = await res.json();
 
     return (
         <div>
             <div className="border mb-4 p-4 rounded-xl flex justify-between">
-                <h2 className="text-xl font-semibold">Slider list</h2>
+                <h2 className="text-xl font-semibold">Service list</h2>
 
                 <Button asChild>
-                    <Link href="/dashboard/slider/create">Create</Link>
+                    <Link href="/dashboard/service/create">Create</Link>
                 </Button>
             </div>
-            <SliderTable data={json.data} />
+            <ServiceTable data={json.data} />
         </div>
     )
 }

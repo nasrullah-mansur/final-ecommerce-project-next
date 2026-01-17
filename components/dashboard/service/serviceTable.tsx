@@ -36,6 +36,7 @@ import {
 import apiUrl from "@/lib/apiUrl";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 
 export type Payment = {
@@ -44,93 +45,99 @@ export type Payment = {
     image: string;
 }
 
-const handleDelete = async (id: string) => {
 
-    if (!id) return;
 
-    const confi = confirm("Are you sure you want to remove it?");
 
-    if (confi) {
-        const res = await fetch(apiUrl('/slider'), {
-            method: "DELETE",
-            body: JSON.stringify({ id })
-        })
 
-        const json = await res.json();
+export function ServiceTable({ data }: { data: Payment[] }) {
+    const router = useRouter()
 
-        if (json.ok) {
+    const handleDelete = async (id: string) => {
 
+
+        if (!id) return;
+
+        const confi = confirm("Are you sure you want to remove it?");
+
+        if (confi) {
+            const res = await fetch(apiUrl('/service'), {
+                method: "DELETE",
+                body: JSON.stringify({ id })
+            })
+
+            const json = await res.json();
+
+            if (json.ok) {
+                router.push("/dashboard/service");
+            }
         }
+
+
+
     }
 
-
-
-}
-
-export const columns: ColumnDef<Payment>[] = [
-    {
-        accessorKey: "image",
-        header: () => "Image",
-        cell: ({ row }) => <div className="lowercase">
-            <Image
-                src={row.getValue("image")}
-                alt="preview image"
-                width={100}
-                height={100}
-            />
-        </div>,
-    },
-    {
-        accessorKey: "title",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Title
-
-                    <ArrowUpDown />
-                </Button>
-            )
+    const columns: ColumnDef<Payment>[] = [
+        {
+            accessorKey: "image",
+            header: () => "Image",
+            cell: ({ row }) => <div className="lowercase">
+                <Image
+                    src={row.getValue("image")}
+                    alt="preview image"
+                    width={100}
+                    height={100}
+                />
+            </div>,
         },
-        cell: ({ row }) => <div className="lowercase">
-            {row.getValue("title")}
+        {
+            accessorKey: "title",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Title
 
-        </div>,
-    },
-
-    {
-        accessorKey: "createdAt",
-        header: () => "Created At",
-        cell: ({ row }) => {
-            return <div>{moment(row.getValue("createdAt")).format("D MMM y")}</div>
-        },
-    },
-
-    {
-        id: "actions",
-        header: () => <div>Action</div>,
-        enableHiding: false,
-        cell: ({ row }) => {
-
-            return (
-                <div className="flex gap-x-2">
-                    <Button asChild size={"icon"}>
-                        <Link href={`/dashboard/slider/edit/${row.original._id}`}>
-                            <SquarePen />
-                        </Link>
+                        <ArrowUpDown />
                     </Button>
-                    <Button onClick={() => handleDelete(row.original._id)} variant={"destructive"} size={"icon"}>
-                        <Trash />
-                    </Button>
-                </div>
-            )
-        },
-    },
-]
+                )
+            },
+            cell: ({ row }) => <div className="lowercase">
+                {row.getValue("title")}
 
-export function SliderTable({ data }: { data: Payment[] }) {
+            </div>,
+        },
+
+        {
+            accessorKey: "createdAt",
+            header: () => "Created At",
+            cell: ({ row }) => {
+                return <div>{moment(row.getValue("createdAt")).format("D MMM y")}</div>
+            },
+        },
+
+        {
+            id: "actions",
+            header: () => <div>Action</div>,
+            enableHiding: false,
+            cell: ({ row }) => {
+
+                return (
+                    <div className="flex gap-x-2">
+                        <Button asChild size={"icon"}>
+                            <Link href={`/dashboard/service/edit/${row.original._id}`}>
+                                <SquarePen />
+                            </Link>
+                        </Button>
+                        <Button onClick={() => handleDelete(row.original._id)} variant={"destructive"} size={"icon"}>
+                            <Trash />
+                        </Button>
+                    </div>
+                )
+            },
+        },
+    ]
 
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
