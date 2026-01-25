@@ -9,14 +9,12 @@ import {
     TableRow
 } from "@/components/ui/table";
 import apiUrl from "@/lib/apiUrl";
-import Image from "next/image";
 import Link from "next/link";
 
 export default async function Category() {
 
-    const res = await fetch(apiUrl("/category"));
+    const res = await fetch(apiUrl("/sub-category"));
     const json = await res.json();
-
 
     return (
         <div>
@@ -25,7 +23,7 @@ export default async function Category() {
                 <h2 className="text-xl font-semibold">Category list</h2>
 
                 <Button asChild>
-                    <Link href="/dashboard/category/create">Create</Link>
+                    <Link href="/dashboard/sub-category/create">Create</Link>
                 </Button>
             </div>
 
@@ -33,32 +31,29 @@ export default async function Category() {
                 <TableHeader>
                     <TableRow>
                         <TableHead className="w-20">#SL</TableHead>
-                        <TableHead>Image</TableHead>
+
                         <TableHead>Title</TableHead>
+                        <TableHead>Category</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {json.data.map((item: { _id: string; title: string; image: string; status: string }) => (
+                    {json.data.map((item: { _id: string; title: string; status: string; category: { title: string } }) => (
                         <TableRow key={item._id}>
                             <TableCell className="font-medium">1</TableCell>
-                            <TableCell>
-                                <Image
-                                    width={80}
-                                    height={80}
-                                    src={item.image}
-                                    alt="image"
-                                />
-                            </TableCell>
+
                             <TableCell>
                                 {item.title}
+                            </TableCell>
+                            <TableCell>
+                                {item.category.title}
                             </TableCell>
                             <TableCell>
                                 {item.status}
                             </TableCell>
                             <TableCell className="text-right">
-                                <TableAction id={item._id} endpoint="/category" />
+                                <TableAction id={item._id} endpoint="/sub-category" />
                             </TableCell>
                         </TableRow>
 

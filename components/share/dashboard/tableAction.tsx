@@ -21,7 +21,7 @@ export default function TableAction({ id, endpoint }: { id: string; endpoint: st
             const json = await res.json();
 
             if (json.ok) {
-                router.push(`dashboard/${endpoint}`);
+                router.push(`/${endpoint}`);
             }
         }
     }
