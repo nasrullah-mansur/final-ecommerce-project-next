@@ -31,7 +31,6 @@ const SubCategorySchema = new Schema<ISubCategory>(
             type: Schema.Types.ObjectId,
             ref: "Category",
             required: true,
-            default: "Active",
         },
     },
     { timestamps: true }

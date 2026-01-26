@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -19,14 +20,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import apiUrl from "@/lib/apiUrl"
 import { slugify } from "@/utils/slugify"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Editor } from "primereact/editor"
+import { toast } from "sonner"
 
 
 const formSchema = z.object({
-    title: z.string().min(1, "Title field is required"),
+    // title: z.string().min(1, "Title field is required"),
     status: z.string().min(1, "Title field is required"),
     description: z.string().min(1, "Title field is required"),
     details: z.string().min(1, "Title field is required"),
@@ -52,6 +55,9 @@ export default function CreateProduct() {
         preview: null,
     });
 
+    const [categories, setCategories] = useState<{ title: string; _id: string }[]>([]);
+    const [subCategories, setSubCategories] = useState<{ title: string; _id: string; category: { _id: string } }[]>([]);
+
     const [gallery, setGallery] = useState<IImage[]>([]);
 
     const form = useForm<FormValues>({
@@ -73,12 +79,71 @@ export default function CreateProduct() {
         setServerError(null)
         setSubmitting(true)
 
+        let updatedValues: any = { ...values, title, slug };
+
+
         try {
 
-            console.log(values);
+            if (!title || !slug || !image.image) {
+                toast.error("Validation error");
+
+                return;
+            }
+
+            // Image upload to cludinary;
+
+            if (image.image) {
+
+                const formData = new FormData();
+                formData.append("file", image.image)
+
+                const result = await fetch(apiUrl('/image-upload/single'), {
+                    method: "POST",
+                    body: formData,
+                })
+
+                const json = await result.json();
+
+                if (json.ok) {
+                    updatedValues = { ...updatedValues, image: json.data.url }
+                }
+
+            }
+
+            if (gallery.length > 0) {
+                const formData = new FormData();
+
+                gallery.forEach((gal) => {
+                    formData.append("files", gal.image as File);
+                });
+
+
+                const result = await fetch(apiUrl('/image-upload/multiple'), {
+                    method: "POST",
+                    body: formData,
+                })
+
+                const json = await result.json();
+
+                if (json.ok) {
+                    updatedValues = { ...updatedValues, gallery: json.data }
+                }
+            }
+
+
+            const productRes = await fetch(apiUrl('/product'), {
+                method: "POST",
+                body: JSON.stringify({ ...updatedValues })
+            })
+
+            const productJson = await productRes.json();
+
+            console.log(updatedValues);
+
 
 
         } catch (err) {
+            console.log(err);
 
             setServerError(err instanceof Error ? err.message : "Something went wrong")
         } finally {
@@ -92,7 +157,38 @@ export default function CreateProduct() {
         setSlug(slugify(title))
     }
 
-    console.log(gallery);
+
+    useEffect(() => {
+
+        async function getData() {
+            const catRes = await fetch(apiUrl('/category'));
+            const catJson = await catRes.json();
+
+            if (catJson.ok) {
+                setCategories(catJson.data);
+            }
+
+            const subCatRes = await fetch(apiUrl('/sub-category'));
+            const subCatJson = await subCatRes.json();
+
+            if (subCatJson.ok) {
+                setSubCategories(subCatJson.data);
+            }
+
+
+        }
+
+        getData();
+
+    }, [])
+
+    const selectedCategory = form.watch("category");
+
+    let updatedSubCategory: { title: string; _id: string; category: { _id: string } }[] = [];
+
+    if (selectedCategory) {
+        updatedSubCategory = subCategories.filter(cat => cat.category._id == selectedCategory);
+    }
 
 
     return (
@@ -240,7 +336,7 @@ export default function CreateProduct() {
                                             <FormLabel>Details</FormLabel>
                                             <FormControl>
                                                 <Editor value={field.value} onTextChange={(e) => field.onChange(e.htmlValue)} style={{ height: '320px' }} />
-                                                {/* <Textarea placeholder="details" {...field} /> */}
+
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -252,18 +348,19 @@ export default function CreateProduct() {
                             <div className="mb-3">
                                 <FormField
                                     control={form.control}
-                                    name="status"
+                                    name="category"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Select Category</FormLabel>
                                             <FormControl>
                                                 <Select value={field.value} onValueChange={field.onChange}>
                                                     <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Status" />
+                                                        <SelectValue placeholder="Category" />
                                                     </SelectTrigger>
                                                     <SelectContent >
-                                                        <SelectItem value="active">Active</SelectItem>
-                                                        <SelectItem value="inactive">Inactive</SelectItem>
+                                                        {categories.map(category => (
+                                                            <SelectItem key={category._id} value={category._id}>{category.title}</SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -277,18 +374,19 @@ export default function CreateProduct() {
                             <div className="mb-3">
                                 <FormField
                                     control={form.control}
-                                    name="status"
+                                    name="subCategory"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Select sub category</FormLabel>
                                             <FormControl>
                                                 <Select value={field.value} onValueChange={field.onChange}>
                                                     <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Status" />
+                                                        <SelectValue placeholder="Sub category" />
                                                     </SelectTrigger>
                                                     <SelectContent >
-                                                        <SelectItem value="active">Active</SelectItem>
-                                                        <SelectItem value="inactive">Inactive</SelectItem>
+                                                        {updatedSubCategory.map(cat => (
+                                                            <SelectItem key={cat._id} value={cat._id}>{cat.title}</SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
