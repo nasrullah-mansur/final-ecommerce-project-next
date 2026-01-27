@@ -12,11 +12,23 @@ export interface IProduct {
     description: string;
     createdAt?: Date;
     updatedAt?: Date;
+    previousPrice: string;
+    currentPrice: string;
 }
 
 const ProductSchema = new Schema<IProduct>(
     {
         title: {
+            type: String,
+            required: true,
+        },
+
+        previousPrice: {
+            type: String,
+            required: true,
+        },
+
+        currentPrice: {
             type: String,
             required: true,
         },

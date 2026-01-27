@@ -6,11 +6,15 @@ import { SubCategory } from "@/models/subCategory.model";
 import { slugify } from "@/utils/slugify";
 import { NextResponse } from "next/server";
 
+import "@/models/category.model";
+
 export async function GET() {
     try {
+
         await dbConnect();
 
-        const data = await SubCategory.find().populate("category");
+        const data = await Product.find().populate("category");
+        console.log("check");
 
         return NextResponse.json({
             ok: true,
@@ -36,11 +40,13 @@ export async function POST(req: Request) {
             status,
             category,
             subCategory,
-            gallery
+            gallery,
+            previousPrice,
+            currentPrice,
         } = await req.json();
 
 
-        if (!title || !status || !category || !slug || !image || !description || !details || !subCategory) {
+        if (!previousPrice || !currentPrice || !title || !status || !category || !slug || !image || !description || !details || !subCategory) {
             return NextResponse.json({
                 error: "Validation error"
             }, { status: 401 });
@@ -58,6 +64,8 @@ export async function POST(req: Request) {
             status,
             category,
             subCategory,
+            previousPrice,
+            currentPrice,
         });
 
         return NextResponse.json({
@@ -146,11 +154,11 @@ export async function DELETE(req: Request) {
 
         await dbConnect();
 
-        await SubCategory.findByIdAndDelete(id);
+        await Product.findByIdAndDelete(id);
 
         return NextResponse.json({
             ok: true,
-            message: "Category added successfully"
+            message: "Product removed successfully"
         }, { status: 201 });
 
     } catch (error) {

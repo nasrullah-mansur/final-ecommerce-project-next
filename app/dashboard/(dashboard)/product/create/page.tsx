@@ -30,11 +30,13 @@ import { toast } from "sonner"
 
 const formSchema = z.object({
     // title: z.string().min(1, "Title field is required"),
-    status: z.string().min(1, "Title field is required"),
-    description: z.string().min(1, "Title field is required"),
-    details: z.string().min(1, "Title field is required"),
-    category: z.string().min(1, "Title field is required"),
-    subCategory: z.string().min(1, "Title field is required"),
+    currentPrice: z.string().min(1, "Current price field is required"),
+    previousPrice: z.string().min(1, "Previous price field is required"),
+    status: z.string().min(1, "Status field is required"),
+    description: z.string().min(1, "Description field is required"),
+    details: z.string().min(1, "Details field is required"),
+    category: z.string().min(1, "Category field is required"),
+    subCategory: z.string().min(1, "Sub category field is required"),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -78,6 +80,7 @@ export default function CreateProduct() {
     async function onSubmit(values: FormValues) {
         setServerError(null)
         setSubmitting(true)
+
 
         let updatedValues: any = { ...values, title, slug };
 
@@ -138,7 +141,10 @@ export default function CreateProduct() {
 
             const productJson = await productRes.json();
 
-            console.log(updatedValues);
+            if (productJson.ok) {
+                router.push("/dashboard/product");
+                toast.success("Product added successfully");
+            }
 
 
 
@@ -421,6 +427,54 @@ export default function CreateProduct() {
                                 />
 
 
+                            </div>
+
+                            <div className="mb-3">
+                                <FormField
+                                    control={form.control}
+                                    name="currentPrice"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Current price</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="current price" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <FormField
+                                    control={form.control}
+                                    name="previousPrice"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Previous price</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="previous price" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Description</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="description" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
 
                             <div className="mb-3">

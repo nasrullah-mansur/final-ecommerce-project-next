@@ -24,137 +24,49 @@ import Link from "next/link"
 const data = {
   navMain: [
     {
-      title: "Getting Started",
+      title: "Manage product",
       url: "#",
       items: [
         {
-          title: "Installation",
-          url: "#",
+          title: "Category",
+          url: "/dashboard/category",
         },
         {
-          title: "Project Structure",
-          url: "#",
+          title: "Sub Category",
+          url: "/dashboard/sub-category",
+        },
+        {
+          title: "Product",
+          url: "/dashboard/product",
         },
       ],
     },
     {
-      title: "Building Your Application",
+      title: "Manage Site",
       url: "#",
       items: [
         {
-          title: "Routing",
-          url: "#",
+          title: "Slider",
+          url: "/dashboard/slider",
         },
         {
-          title: "Data Fetching",
-          url: "#",
+          title: "Brand",
+          url: "/dashboard/brand",
           isActive: true,
         },
         {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
+          title: "Service",
+          url: "/dashboard/service",
+        }
       ],
     },
     {
-      title: "API Reference",
+      title: "User",
       url: "#",
       items: [
         {
-          title: "Components",
-          url: "#",
-        },
-        {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Architecture",
-      url: "#",
-      items: [
-        {
-          title: "Accessibility",
-          url: "#",
-        },
-        {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Community",
-      url: "#",
-      items: [
-        {
-          title: "Contribution Guide",
-          url: "#",
+          title: "User",
+          url: "/dashboard/user",
         },
       ],
     },
@@ -196,7 +108,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {item.items.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild isActive={item.isActive}>
-                          <a href={item.url}>{item.title}</a>
+                          <Link href={item.url}>- {item.title}</Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
