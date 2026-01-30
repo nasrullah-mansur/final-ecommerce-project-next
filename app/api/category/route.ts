@@ -3,6 +3,7 @@
 import { dbConnect } from "@/db/mongodb";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { Category } from "@/models/category.model";
+import "@/models/subCategory.model";
 import { slugify } from "@/utils/slugify";
 import { NextResponse } from "next/server";
 
@@ -10,7 +11,16 @@ export async function GET() {
     try {
         await dbConnect();
 
-        const data = await Category.find();
+        const data = await Category.aggregate([
+            {
+                $lookup: {
+                    from: "subcategories",     // MongoDB collection name
+                    localField: "_id",         // Category _id
+                    foreignField: "category",  // SubCategory.category (ObjectId ref)
+                    as: "SubCategory"
+                }
+            },
+        ]);
 
         return NextResponse.json({
             ok: true,

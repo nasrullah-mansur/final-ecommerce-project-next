@@ -1,6 +1,6 @@
+import { getSlider } from "@/actions/slider/sliderAction";
 import { SliderTable } from "@/components/dashboard/slider/sliderTable";
 import { Button } from "@/components/ui/button";
-import apiUrl from "@/lib/apiUrl";
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 
 export default async function Slider() {
 
-    const res = await fetch(apiUrl("/slider"));
-    const json = await res.json();
+
+    const data = await getSlider();
+
 
     return (
         <div>
@@ -23,7 +24,7 @@ export default async function Slider() {
                     <Link href="/dashboard/slider/create">Create</Link>
                 </Button>
             </div>
-            <SliderTable data={json.data} />
+            <SliderTable data={data} />
         </div>
     )
 }

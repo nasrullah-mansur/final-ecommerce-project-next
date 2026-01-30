@@ -1,15 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { getCategories } from "@/actions/category/categoryAction";
 import MobileNavigation from "@/components/public/mobileNavigation";
 import { ChevronDown, ChevronRight, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const menuData = [1, 2, 3, 4, 5]
 
 export default function Navbar() {
     const [active, setActive] = useState(false);
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+
+        async function getData() {
+            const data = await getCategories();
+
+            if (data.ok) {
+                setCategories(data.data);
+            }
+
+        }
+
+        getData();
+
+    }, [])
+
+    console.log(categories);
+
 
     return (
         <>
@@ -24,52 +45,33 @@ export default function Navbar() {
 
                             {active &&
                                 <div className="absolute top-full left-0 w-full bg-white z-1 py-3">
-                                    {menuData.map((item, index) => (
-                                        <div key={item} className={`${(menuData.length - 1) == index ? "" : "border-b mb-2 pb-2"} px-3 flex items-center cursor-pointer group`}>
+                                    {categories.map((item: any, index) => (
+                                        <div key={item} className={`${(categories.length - 1) == index ? "" : "border-b mb-2 pb-2"} px-3 flex items-center cursor-pointer group`}>
                                             <Image
-                                                src={"https://geniusdevs.com/codecanyon/omnimart/core/public/storage/images/1629616296pexels-juan-mendez-1536619.jpg"}
+                                                src={item.image}
                                                 alt="category image"
                                                 width={50}
                                                 height={50}
                                                 className="w-12 h-12 object-cover group-hover:rotate-y-180"
                                             />
-                                            <span className="block pl-3 group-hover:text-primary">Women Clothing</span>
+                                            <span className="block pl-3 group-hover:text-primary">{item.title}</span>
                                             <ChevronRight className="w-5 ml-auto" />
 
-                                            <div className="absolute h-full w-full left-full top-0 bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible">
-                                                <ul>
-                                                    <li>
-                                                        <Link className="w-full flex justify-between py-3 border-b" href={""}>
-                                                            Sub category item
-                                                            <ChevronRight />
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link className="w-full flex justify-between py-3 border-b" href={""}>
-                                                            Sub category item
-                                                            <ChevronRight />
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link className="w-full flex justify-between py-3 border-b" href={""}>
-                                                            Sub category item
-                                                            <ChevronRight />
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link className="w-full flex justify-between py-3 border-b" href={""}>
-                                                            Sub category item
-                                                            <ChevronRight />
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link className="w-full flex justify-between py-3 border-b" href={""}>
-                                                            Sub category item
-                                                            <ChevronRight />
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                            {item?.SubCategory?.length > 0 &&
+                                                <div className="absolute h-full w-full left-full top-0 bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible">
+                                                    <ul>
+                                                        {item.SubCategory.map((subCategory) => (
+                                                            <li key={subCategory._id}>
+                                                                <Link className="w-full flex justify-between py-3 border-b" href={""}>
+                                                                    {subCategory.title}
+                                                                </Link>
+                                                            </li>
+
+                                                        ))}
+
+                                                    </ul>
+                                                </div>
+                                            }
                                         </div>
                                     ))}
                                 </div>

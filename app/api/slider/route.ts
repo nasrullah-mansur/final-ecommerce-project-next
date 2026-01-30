@@ -6,6 +6,7 @@ import { Slider } from "@/models/slider.model";
 import { NextResponse } from "next/server";
 
 export async function GET() {
+
     try {
         await dbConnect();
 
